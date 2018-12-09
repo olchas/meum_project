@@ -109,15 +109,7 @@ if __name__ == '__main__':
     rmse_forecast = []
     rmse_total = []
     
-    iter = 0
-
     for train_data, test_data, scaler in next_series_generator(data_df, test_data_size):
-
-        if iter != 0:
-            iter += 1
-            continue
-        
-        iter +=1
         
         if args.model == 'linear':
 
