@@ -98,12 +98,8 @@ if __name__ == '__main__':
     normalized_forecast_data_matrix = []
     normalized_test_data_matrix = []
 
-    parameters_values = []
-
-    if args.model == 'linear':
-        parameters_names = ['p', 'd', 'q', 'P', 'D', 'Q']
-    elif args.model == 'catboost':
-        pass
+    # list of dicts of parameters of each trained model
+    parameters_dicts = []
 
     rmse_prediction = []
     rmse_forecast = []
@@ -114,7 +110,7 @@ if __name__ == '__main__':
         if args.model == 'linear':
 
             model = ArimaModel(train_data, args.validation_criteria, data_frequency)
-            parameters_values.append(model.get_parameters())
+            parameters_dicts.append(model.get_parameters())
             prediction, forecast = model.make_prediction(test_data, args.forecast_type)
 
         elif args.model == 'catboost':
@@ -135,6 +131,8 @@ if __name__ == '__main__':
         predicted_data_matrix.append(predicted_data)
         expected_data_matrix.append(expected_data)
 
+        break
+
     # names of data columns in form of integers
     data_columns = list(range(1, max(len(x) for x in predicted_data_matrix) + 1))
     series_index = list(range(len(predicted_data_matrix)))
@@ -144,8 +142,12 @@ if __name__ == '__main__':
     predicted_data_df['series'] = series_index
     predicted_data_df['N'] = series_length
     predicted_data_df['NF'] = test_data_size
-    for i, parameter in enumerate(parameters_names):
-        predicted_data_df[parameter] = [x[i] for x in parameters_values]
+
+    # take parameters names from first dict
+    parameters_names = list(parameters_dicts[0].keys())
+    for parameter in parameters_names:
+        predicted_data_df[parameter] = [x[parameter] for x in parameters_dicts]
+
     predicted_data_df['rmse_prediction'] = rmse_prediction
     predicted_data_df['rmse_forecast'] = rmse_forecast
     predicted_data_df['rmse_total'] = rmse_total

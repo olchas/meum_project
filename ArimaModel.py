@@ -1,5 +1,6 @@
 import warnings
 from math import sqrt
+from collections import OrderedDict
 from statistics import mean
 
 import numpy as np
@@ -292,4 +293,4 @@ class ArimaModel:
 
     def get_parameters(self):
         """Return list of model parameters"""
-        return [self.p, self.d, self.q, self.P, self.D, self.Q]
+        return OrderedDict([('p', self.p), ('d', self.d), ('q', self.q), ('P', self.P), ('D', self.D), ('Q', self.Q)])
