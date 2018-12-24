@@ -104,9 +104,9 @@ if __name__ == '__main__':
     rmse_prediction = []
     rmse_forecast = []
     rmse_total = []
-    
+
     for train_data, test_data, scaler in next_series_generator(data_df, test_data_size):
-        
+
         if args.model == 'linear':
 
             model = ArimaModel(train_data, args.validation_criteria, data_frequency)
@@ -130,8 +130,6 @@ if __name__ == '__main__':
 
         predicted_data_matrix.append(predicted_data)
         expected_data_matrix.append(expected_data)
-
-        break
 
     # names of data columns in form of integers
     data_columns = list(range(1, max(len(x) for x in predicted_data_matrix) + 1))
@@ -180,6 +178,12 @@ if __name__ == '__main__':
 
     if not os.path.isdir(args.output_dir):
         os.makedirs(args.output_dir)
+
+    normalized_forecast_data_df = pd.DataFrame(normalized_forecast_data_matrix)
+    normalized_test_dat_df = pd.DataFrame(normalized_test_data_matrix)
+
+    normalized_forecast_data_df.to_csv(os.path.join(args.output_dir, 'normalized_forecast.tsv'), sep='\t', index=False)
+    normalized_test_dat_df.to_csv(os.path.join(args.output_dir, 'normalized_test_data.tsv'), sep='\t', index=False)
 
     predicted_data_df.to_csv(os.path.join(args.output_dir, 'predictions.tsv'), sep='\t', index=False)
     expected_data_df.to_csv(os.path.join(args.output_dir, 'expected.tsv'), sep='\t', index=False)
