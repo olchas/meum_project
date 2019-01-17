@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 from math import sqrt
 
 import numpy as np
@@ -105,13 +106,23 @@ if __name__ == '__main__':
     rmse_forecast = []
     rmse_total = []
 
+    training_time = 0
+    testing_time = 0
+
     for train_data, test_data, scaler in next_series_generator(data_df, test_data_size):
 
         if args.model == 'linear':
 
+            training_start = time.time()
             model = ArimaModel(train_data, args.validation_criteria, data_frequency)
-            parameters_dicts.append(model.get_parameters())
+            training_end = time.time()
+
             prediction, forecast = model.make_prediction(test_data, args.forecast_type)
+            testing_end = time.time()
+
+            training_time += training_end - training_start
+            testing_time += testing_end - training_end
+            parameters_dicts.append(model.get_parameters())
 
         elif args.model == 'catboost':
             pass
@@ -191,3 +202,9 @@ if __name__ == '__main__':
     with open(os.path.join(args.output_dir, 'rmse_file.tsv'), 'w') as f:
         f.write('\t'.join([str(x) for x in rmse_per_month]))
         f.write('\n' + str(total_rmse))
+
+    mean_training_time = training_time / len(predicted_data_df)
+    mean_testing_time = testing_time / len(predicted_data_df)
+
+    with open(os.path.join(args.output_dir, 'time.tsv'), 'w') as f:
+        f.write('mean_training_time\tmean_testing_time\n{training_time}\t{testing_time}\n'.format(training_time=mean_training_time, testing_time=mean_testing_time))
